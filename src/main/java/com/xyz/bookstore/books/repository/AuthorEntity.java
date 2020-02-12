@@ -10,12 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.List;
+
 
 @Data
 @Builder
@@ -23,24 +19,12 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "books")
-public class BookEntity {
+@Table(name = "authors")
+public class AuthorEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String isbn;
   private String name;
-
-  @OneToOne
-  @JoinColumn(name = "author_id")
-  private AuthorEntity author;
-
-  @OneToMany
-  @JoinTable(
-      name = "books_categories",
-      joinColumns = @JoinColumn(name = "book_id"),
-      inverseJoinColumns = @JoinColumn(name = "category_id"))
-  private List<CategoryEntity> categories;
 }
