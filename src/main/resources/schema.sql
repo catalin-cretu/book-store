@@ -12,6 +12,8 @@ create table books (
     id bigint auto_increment,
     name varchar not null,
     isbn varchar not null,
+    created_timestamp datetime not null,
+    updated_timestamp datetime not null,
     author_id bigint,
     foreign key (author_id) references authors (id)
 );

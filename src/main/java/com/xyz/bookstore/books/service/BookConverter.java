@@ -21,6 +21,8 @@ public class BookConverter {
         .name(bookEntity.getName())
         .author(new Author(authorEntity.getId(), authorEntity.getName()))
         .categories(toCategories(bookEntity.getCategories()))
+        .createdTimestamp(bookEntity.getCreatedTimestamp())
+        .updatedTimestamp(bookEntity.getUpdatedTimestamp())
         .build();
   }
 

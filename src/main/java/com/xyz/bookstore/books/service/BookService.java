@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Instant;
 import java.util.List;
 
 import static com.xyz.bookstore.books.repository.BookRepositoryConverter.toBookEntity;
@@ -43,6 +44,10 @@ public class BookService {
 
     findExistingCategories(book, bookEntity);
     findOrCreateAuthor(bookEntity);
+
+    var nowInstant = Instant.now();
+    bookEntity.setCreatedTimestamp(nowInstant);
+    bookEntity.setUpdatedTimestamp(nowInstant);
 
     var savedBookEntity = bookRepository.save(bookEntity);
     return toBook(savedBookEntity);

@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -90,6 +91,15 @@ class BooksControllerTests {
           .body("$", hasSize(3));
     }
 
+    private void createPopulatedBook() {
+      var book = Populated.bookEntity()
+          .author(defaultAuthorEntity)
+          .categories(List.of(defaultCategoryEntity))
+          .build();
+
+      bookRepository.save(book);
+    }
+
     @Test
     @DisplayName("/books/{id} - missing ID - returns not found")
     void getOneMissing() {
@@ -123,6 +133,8 @@ class BooksControllerTests {
           .body("id", is(bookId.intValue()))
           .body("isbn", is("12AA"))
           .body("name", is("Ice and Fire"))
+          .body("createdTimestamp", notNullValue())
+          .body("updatedTimestamp", notNullValue())
           .body("author.id", is(authorEntity.getId().intValue()))
           .body("author.name", is("GRR Martin"))
           .body("categories.title", hasItems("thriller", "fantasy"));
@@ -170,14 +182,5 @@ class BooksControllerTests {
           .body("author.name", is("Joshua Bloch"))
           .body("categories.title", hasItems("non-fiction", "thriller"));
     }
-  }
-
-  private void createPopulatedBook() {
-    var book = Populated.bookEntity()
-        .author(defaultAuthorEntity)
-        .categories(List.of(defaultCategoryEntity))
-        .build();
-
-    bookRepository.save(book);
   }
 }

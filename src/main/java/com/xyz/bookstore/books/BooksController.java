@@ -44,10 +44,9 @@ public class BooksController {
   public ResponseEntity<Void> create(@RequestBody final BookRequest bookRequest) throws URISyntaxException {
     log.info("Create new book with name [{}] author [{}]", bookRequest.getName(), bookRequest.getAuthorName());
 
+    var savedBook = bookService.create(toBook(bookRequest));
 
-    var book = bookService.create(toBook(bookRequest));
-
-    URI location = new URI("/api/books/" + book.getId());
+    URI location = new URI("/api/books/" + savedBook.getId());
     return ResponseEntity.created(location).build();
   }
 }

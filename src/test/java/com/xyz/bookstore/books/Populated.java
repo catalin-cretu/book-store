@@ -5,6 +5,7 @@ import com.xyz.bookstore.books.repository.BookEntity;
 import com.xyz.bookstore.books.repository.CategoryEntity;
 import lombok.experimental.UtilityClass;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,7 +20,9 @@ public class Populated {
         .isbn(randomAlphanumeric(10))
         .name(randomAlphanumeric(30))
         .author(authorEntity("author"))
-        .categories(categoryEntities("fantasy", "crime"));
+        .categories(categoryEntities("fantasy", "crime"))
+        .createdTimestamp(Instant.now())
+        .updatedTimestamp(Instant.now());
   }
 
   public static AuthorEntity authorEntity(final String authorName) {

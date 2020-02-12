@@ -15,6 +15,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -32,6 +33,9 @@ public class BookEntity {
 
   private String isbn;
   private String name;
+
+  private Instant createdTimestamp;
+  private Instant updatedTimestamp;
 
   @OneToOne
   @JoinColumn(name = "author_id")

@@ -1,4 +1,32 @@
 # Book store RESTful API
+Simple RESTful api for a book store.
+
+
+## Tools
+- Java 11
+- Maven 3
+- Spring Boot
+
+
+## Improvements
+- add validation for required fields when creating a book
+- add validation for existing books when creating a new one
+
+
+## Run server
+- `./mvnw spring-boot:run`
+
+
+## API
+- `GET localhost:8080/api/books`
+    - get all books
+- `GET localhost:8080/api/books/{bookId}`
+    - get a book by ID
+- `POST localhost:8080/api/books`
+    - create a new book
+    - create a new author if it doesn't exist
+    - categories are hard-coded (see src/main/resources/data.sql)
+
 
 ### Objective 1
 
