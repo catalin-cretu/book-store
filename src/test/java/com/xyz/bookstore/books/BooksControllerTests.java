@@ -16,15 +16,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+import static org.springframework.http.HttpHeaders.LOCATION;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @SpringBootTest(webEnvironment = DEFINED_PORT)
 class BooksControllerTests {
@@ -66,6 +73,8 @@ class BooksControllerTests {
     @Test
     @DisplayName("/books - returns all books")
     void getAll() {
+      bookRepository.deleteAll();
+
       get("/books")
           .then().assertThat()
           .body("$", empty());
@@ -117,6 +126,49 @@ class BooksControllerTests {
           .body("author.id", is(authorEntity.getId().intValue()))
           .body("author.name", is("GRR Martin"))
           .body("categories.title", hasItems("thriller", "fantasy"));
+    }
+  }
+
+  @Nested
+  @DisplayName("POST")
+  class Post {
+
+    @Test
+    @DisplayName("/books - missing user/pass - returns unauthorized")
+    void createNoAuth() {
+      given()
+          .body("{}")
+          .post("/books")
+
+          .then().assertThat()
+          .statusCode(UNAUTHORIZED.value());
+    }
+
+    @Test
+    @DisplayName("/books - creates book")
+    void createOne() {
+      String location = given()
+          .auth().preemptive().basic("admin", "admin")
+          .contentType(JSON)
+          .body(Map.of(
+              "isbn", "9780134686042",
+              "name", "Effective Java",
+              "authorName", "Joshua Bloch",
+              "categories", List.of("non-fiction", "thriller")))
+          .post("/books")
+
+          .then().assertThat()
+          .statusCode(CREATED.value())
+          .header(LOCATION, matchesPattern("/api/books/[0-9]+"))
+          .extract().header(LOCATION);
+
+      get("/books/{bookId}", 1)
+
+          .then().assertThat()
+          .body("isbn", is("9780134686042"))
+          .body("name", is("Effective Java"))
+          .body("author.name", is("Joshua Bloch"))
+          .body("categories.title", hasItems("non-fiction", "thriller"));
     }
   }
 

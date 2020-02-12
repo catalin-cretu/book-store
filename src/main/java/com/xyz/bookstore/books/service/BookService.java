@@ -20,22 +20,7 @@ public class BookService {
 
   private final BookRepository bookRepository;
   private final CategoryRepository categoryRepository;
-
-  @Transactional
-  public Book create(final Book book) {
-    var titles = book.getCategories()
-        .stream()
-        .map(Category::getTitle)
-        .collect(toList());
-    var categoryEntities = categoryRepository.findAllByTitles(titles);
-
-    BookEntity bookEntity = toBookEntity(book);
-    bookEntity.setCategories(categoryEntities);
-
-    var savedBookEntity = bookRepository.save(bookEntity);
-
-    return toBook(savedBookEntity);
-  }
+  private final AuthorService authorService;
 
   public List<Book> findAll() {
     return bookRepository.findAll()
@@ -50,5 +35,38 @@ public class BookService {
     return optionalBookEntity
         .map(BookConverter::toBook)
         .orElseThrow(() -> new BookNotFoundException(bookId));
+  }
+
+  @Transactional
+  public Book create(final Book book) {
+    BookEntity bookEntity = toBookEntity(book);
+
+    findExistingCategories(book, bookEntity);
+    findOrCreateAuthor(bookEntity);
+
+    var savedBookEntity = bookRepository.save(bookEntity);
+    return toBook(savedBookEntity);
+  }
+
+  private void findExistingCategories(final Book book, final BookEntity bookEntity) {
+    var titles = book.getCategories()
+        .stream()
+        .map(Category::getTitle)
+        .collect(toList());
+    var categoryEntities = categoryRepository.findAllByTitles(titles);
+
+    bookEntity.setCategories(categoryEntities);
+  }
+
+  private void findOrCreateAuthor(final BookEntity bookEntity) {
+    var authorName = bookEntity.getAuthor().getName();
+    var optionalAuthorEntity = authorService.findByName(authorName);
+
+    if (optionalAuthorEntity.isPresent()) {
+      bookEntity.setAuthor(optionalAuthorEntity.get());
+    } else {
+      var authorEntity = authorService.create(authorName);
+      bookEntity.setAuthor(authorEntity);
+    }
   }
 }

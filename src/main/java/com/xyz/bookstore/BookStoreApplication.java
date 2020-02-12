@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 @SpringBootApplication
 public class BookStoreApplication {
@@ -23,14 +24,19 @@ public class BookStoreApplication {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
       http
+          .httpBasic()
+          .and()
           .authorizeRequests()
-          .antMatchers(GET, "/api/books").permitAll();
+          .antMatchers(GET, "/api/books/**").permitAll()
+          .antMatchers(POST, "/api/books").hasRole("ADMIN")
+          .anyRequest().authenticated()
+          .and().csrf().disable();
     }
 
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
       auth.inMemoryAuthentication()
-          .withUser("admin").password("admin").roles("USER");
+          .withUser("admin").password("{noop}admin").roles("ADMIN");
     }
   }
 }
